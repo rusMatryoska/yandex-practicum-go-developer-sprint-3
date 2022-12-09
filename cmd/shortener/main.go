@@ -1,22 +1,26 @@
 package main
 
 import (
+	"context"
 	"flag"
-	h "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-2/internal/handlers"
-	m "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-2/internal/middleware"
-	s "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-2/internal/storage"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
+
+	handlers "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/handlers"
+	middleware "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/middleware"
+	storage "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/storage"
 )
 
 func main() {
 	var (
+		st       storage.Storage
+		err      error
 		server   = flag.String("a", os.Getenv("SERVER_ADDRESS"), "server address")
 		baseURL  = flag.String("b", os.Getenv("BASE_URL"), "base URL")
 		filePath = flag.String("f", os.Getenv("FILE_STORAGE_PATH"), "server address")
+		connStr  = flag.String("d", os.Getenv("DATABASE_DSN"), "connection url for DB")
 	)
 	flag.Parse()
 
@@ -33,37 +37,77 @@ func main() {
 		*baseURL = *baseURL + "/"
 	}
 
-	storageItem := &s.StorageStruct{
-		ID:    1000,
-		URLID: make(map[string]int),
-		IDURL: make(map[int]string),
+	mwItem := &middleware.MiddlewareStruct{
+		SecretKey: middleware.SecretKey,
+		BaseURL:   *baseURL,
+		Server:    *server,
 	}
-	if *filePath == "" {
-		log.Println("WARNING: saving is done to a buffer, not a file! \n" +
-			"Therefore all saves will be lost upon restart!\n" +
-			"To save to a file, set the correct values for FILE_STORAGE_PATH environment variables.")
-	} else {
-		if _, err := os.Stat(*filePath); os.IsNotExist(err) {
-			m.CreateFile(*filePath)
-		} else {
-			targets := m.InitMapByJSON(*filePath)
-			storageItem.MU.Lock()
-			for _, t := range targets {
-				storageItem.URLID[t.FullURL] = t.ShortenURL
-				storageItem.IDURL[t.ShortenURL] = t.FullURL
-				storageItem.ID = t.ShortenURL
-				m.URLJSONList = append(m.URLJSONList, t)
-				log.Println("url", t.FullURL, "added to storage, you can get access by shorten:", *baseURL+strconv.Itoa(t.ShortenURL))
-			}
-			storageItem.MU.Unlock()
+
+	if *connStr != "" {
+		log.Println("WARNING: saving will be done through DataBase.")
+		log.Println("connStr:", *connStr)
+
+		DBItem := &storage.Database{
+			BaseURL:   *baseURL,
+			DBConnURL: *connStr,
+			CTX:       context.Background(),
 		}
+		var dbErrorConnect error
+
+		pool, err := DBItem.GetDBConnection()
+		defer pool.Close()
+
+		if err != nil {
+			log.Println(err)
+			dbErrorConnect = err
+		}
+
+		DBItem.ConnPool = pool
+		DBItem.DBErrorConnect = dbErrorConnect
+
+		if DBItem.DBErrorConnect == nil {
+			if err := DBItem.CreateDBStructure(); err != nil {
+				log.Fatal("unable to create db structure:", err)
+			}
+		}
+		st = storage.Storage(DBItem)
+
+	} else if *connStr == "" && *filePath != "" {
+		log.Println("WARNING: saving will be done through file.")
+
+		fileItem := &storage.File{
+			BaseURL:  *baseURL,
+			Filepath: *filePath,
+			ID:       999,
+			URLID:    make(map[string]int),
+			IDURL:    make(map[int]string),
+			UserURLs: make(map[string][]int),
+		}
+
+		if _, err := os.Stat(*filePath); os.IsNotExist(err) {
+			middleware.CreateFile(*filePath)
+		} else {
+			targets := middleware.InitMapByJSON(*filePath)
+			fileItem.NewFromFile(*baseURL, targets)
+		}
+		st = storage.Storage(fileItem)
+
+	} else if *connStr == "" && *filePath == "" {
+		log.Println("WARNING: saving will be done through memory.")
+		memoryItem := &storage.Memory{
+			BaseURL:  *baseURL,
+			ID:       999,
+			URLID:    make(map[string]int),
+			IDURL:    make(map[int]string),
+			UserURLs: make(map[string][]int),
+		}
+
+		st = storage.Storage(memoryItem)
 	}
 
-	h.SetValues(*filePath, *baseURL, *server)
-
-	err := http.ListenAndServe(":"+strings.Split(*server, ":")[1], h.NewRouter(s.StorageInterface(storageItem)))
-	if err != nil {
-		log.Fatal(err)
+	if err = http.ListenAndServe(":"+strings.Split(*server, ":")[1],
+		handlers.NewRouter(st, *mwItem)); err != http.ErrServerClosed {
+		log.Fatalf("HTTP server ListenAndServe Error: %v", err)
 	}
 
 }
