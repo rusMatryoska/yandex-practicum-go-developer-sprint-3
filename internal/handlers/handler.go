@@ -3,7 +3,6 @@ package handlers
 import (
 	"compress/gzip"
 	"encoding/json"
-	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -64,19 +63,23 @@ func (sh StorageHandlers) PostAddURLHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	url := string(urlBytes)
-	//user := m.GetCookie(r, m.CookieUserSign)
-	user := r.Context().Value("user").(string)
-
+	user := m.GetCookie(r, m.CookieUserSign)
+	//user := r.Context().Value("user").(string)
+	//if user == "" {
+	//	user = m.GetCookie(r, m.CookieUserSign)
+	//}
+	//log.Println("PostAddURLHandler user=", user)
 	fullShortenURL, err := sh.storage.AddURL(url, user)
 	w.Header().Set("Content-Type", "text/html")
 
 	if err != nil {
 		log.Println("unable to add url", err)
-		if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
-			w.WriteHeader(http.StatusConflict)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		w.WriteHeader(http.StatusConflict)
+		//if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+		//	w.WriteHeader(http.StatusConflict)
+		//} else {
+		//	w.WriteHeader(http.StatusInternalServerError)
+		//}
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -103,7 +106,8 @@ func (sh StorageHandlers) ShortenBatchHandler(w http.ResponseWriter, r *http.Req
 	json.Unmarshal([]byte(urlBytes), &batchRequestList)
 	for i := range batchRequestList {
 		fullShortenURL, err := sh.storage.AddURL(batchRequestList[i].OriginalURL, user)
-		if !errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+		//if !errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -147,11 +151,12 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 	newURLShorten.URLShorten = fullShortenURL
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
-			w.WriteHeader(http.StatusConflict)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		//if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+		//	w.WriteHeader(http.StatusConflict)
+		//} else {
+		//	w.WriteHeader(http.StatusInternalServerError)
+		//}
+		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -180,18 +185,19 @@ func (sh StorageHandlers) GetURLHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (sh StorageHandlers) GetAllURLsHandler(w http.ResponseWriter, r *http.Request) {
-
-	user := m.GetCookie(r, m.CookieUserID)
 	//user := r.Context().Value("user").(string)
+	user := m.GetCookie(r, m.CookieUserSign)
+	//log.Println("GetAllURLsHandler user=", user)
 	JSONStructList, err := sh.storage.GetAllURLForUser(user)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		if errors.As(m.NewStorageError(m.ErrNoContent, "204"), &err) {
-			w.WriteHeader(http.StatusNoContent)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		//if errors.As(m.NewStorageError(m.ErrNoContent, "204"), &err) {
+		//	w.WriteHeader(http.StatusNoContent)
+		//} else {
+		//	w.WriteHeader(http.StatusInternalServerError)
+		//}
+		w.WriteHeader(http.StatusNoContent)
 	} else {
 		json.NewEncoder(w).Encode(JSONStructList)
 		w.WriteHeader(http.StatusOK)

@@ -55,12 +55,13 @@ func main() {
 		var dbErrorConnect error
 
 		pool, err := DBItem.GetDBConnection()
-		defer pool.Close()
 
 		if err != nil {
 			log.Println(err)
 			dbErrorConnect = err
 		}
+
+		defer pool.Close()
 
 		DBItem.ConnPool = pool
 		DBItem.DBErrorConnect = dbErrorConnect

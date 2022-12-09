@@ -42,7 +42,6 @@ type Memory struct {
 }
 
 func (m *Memory) AddURL(url string, user string) (string, error) {
-
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -53,7 +52,8 @@ func (m *Memory) AddURL(url string, user string) (string, error) {
 		m.IDURL[m.ID] = url
 		m.UserURLs[user] = append(m.UserURLs[user], m.ID)
 
-		log.Println("url", url, "added to storage, you can get access by shorten:", m.BaseURL+strconv.Itoa(m.ID))
+		//log.Println("url", url, "added to storage, you can get access by shorten:", m.BaseURL+strconv.Itoa(m.ID),
+		//	" by user ", user)
 	}
 
 	return m.BaseURL + strconv.Itoa(m.URLID[url]), nil
@@ -150,8 +150,6 @@ func (f *File) AddURL(url string, user string) (string, error) {
 
 		log.Println("url", url, "added to storage, you can get access by shorten:", f.BaseURL+strconv.Itoa(f.ID))
 	}
-	log.Println(f)
-	log.Println("AddURL111111111111111111111111111111111111111")
 	return f.BaseURL + strconv.Itoa(f.URLID[url]), nil
 }
 
