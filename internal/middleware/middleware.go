@@ -160,10 +160,8 @@ func (s *MiddlewareStruct) CheckAuth(next http.Handler) http.Handler {
 			}
 			http.SetCookie(w, cookieSign)
 			http.SetCookie(w, cookieUserID)
-			//w.Header().Set("Authorization", UserID)
 		}
 
-		//context.WithValue(context.Background(), RequestIDKey{}, UserID)
 		ctx := context.WithValue(r.Context(), "user", UserID)
 
 		r = r.WithContext(ctx)

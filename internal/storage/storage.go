@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
@@ -17,10 +18,8 @@ import (
 )
 
 const (
-	schema     = "public"
-	table      = "storage"
-	tableUsers = "users"
-	sequence   = "id_serial"
+	schema = "public"
+	table  = "storage"
 )
 
 type Storage interface {
@@ -201,10 +200,10 @@ type Database struct {
 }
 
 func (db *Database) GetRows(query string) (pgx.Rows, error) {
-	// ctx, cancel := context.WithTimeout(db.CTX, 5*time.Second)
-	// defer cancel()
+	ctx, cancel := context.WithTimeout(db.CTX, 5*time.Second)
+	defer cancel()
 
-	rows, err := db.ConnPool.Query(db.CTX, query)
+	rows, err := db.ConnPool.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +225,6 @@ func (db *Database) GetDBConnection() (*pgxpool.Pool, error) {
 	} else {
 		return pool, nil
 	}
-	// ..
 }
 
 func (db *Database) Ping() error {
@@ -236,82 +234,6 @@ func (db *Database) Ping() error {
 		err := db.ConnPool.Ping(db.CTX)
 		return err
 	}
-}
-
-func (db *Database) CreateDBStructure() error {
-	tableExistsRes, err := db.GetRows(fmt.Sprintf("select true "+
-		"from pg_catalog.pg_tables "+
-		"where schemaname = '%s' and tablename = '%s'", schema, table))
-	if err != nil {
-		return err
-	}
-	tableExists := tableExistsRes.Next()
-
-	tableUsersExistsRes, err := db.GetRows(fmt.Sprintf("select true "+
-		"from pg_catalog.pg_tables "+
-		"where schemaname = '%s' and tablename = '%s'", schema, tableUsers))
-	if err != nil {
-		return err
-	}
-	tableUsersExists := tableUsersExistsRes.Next()
-
-	seqExistsRes, err := db.GetRows(fmt.Sprintf("select true "+
-		"from pg_catalog.pg_sequences "+
-		"where schemaname = '%s' and sequencename = '%s'", schema, sequence))
-	if err != nil {
-		return err
-	}
-
-	seqExists := seqExistsRes.Next()
-
-	createTable := fmt.Sprintf("CREATE TABLE %s.%s"+
-		"(\n  \"id\" SERIAL,"+
-		"\n  \"full_url\" TEXT, "+
-		"\n  \"user_id\" TEXT, "+
-		"CONSTRAINT pk_storage\n\tPRIMARY KEY(id))", schema, table)
-
-	createTableUsers := fmt.Sprintf("CREATE TABLE %s.%s"+
-		"(\"user_id\" TEXT, CONSTRAINT pk_users\n\tPRIMARY KEY(user_id))", schema, tableUsers)
-
-	createTableIndex := fmt.Sprintf("CREATE UNIQUE INDEX index_name ON %s.%s USING btree (full_url)", schema, table)
-
-	createSequence := fmt.Sprintf("CREATE SEQUENCE %s.%s START ", schema, sequence)
-
-	dropSequence := fmt.Sprintf("DROP SEQUENCE %s.%s", schema, sequence)
-
-	if !tableUsersExists {
-		db.Exec(createTableUsers)
-	}
-	if !tableExists {
-		if seqExists {
-			db.Exec(dropSequence)
-		}
-		db.Exec(createTable)
-		db.Exec(createTableIndex)
-		db.Exec(createSequence + strconv.Itoa(1000))
-	} else if tableExists && !seqExists {
-		row, err := db.GetRows(fmt.Sprintf("select max(id) from %s.%s", schema, table))
-		if err != nil {
-			return err
-		}
-
-		defer row.Close()
-		row.Next()
-
-		value, err := row.Values()
-		if err != nil {
-			return err
-		}
-
-		if value[0] == nil {
-			db.Exec(createSequence + strconv.Itoa(1000))
-		} else {
-			initID := strconv.FormatInt(int64(value[0].(int32))+1, 10)
-			db.Exec(createSequence + initID)
-		}
-	}
-	log.Println("Structure for DB is ready.")
-	return nil
 }
 
 func (db *Database) AddURL(url string, user string) (string, error) {
@@ -357,27 +279,10 @@ func (db *Database) GetAllURLForUser(user string) ([]middleware.JSONStructForAut
 		JSONStructList []middleware.JSONStructForAuth
 		JSONStruct     middleware.JSONStructForAuth
 		returnErr      error
-		userID         string
 	)
 
-	queryUser := fmt.Sprintf("select user_id from %s.%s", schema, tableUsers)
-	rowUser, err := db.GetRows(queryUser)
-	if err != nil {
-		return nil, err
-	}
-	defer rowUser.Close()
-	//for rowUser.Next() {
-	//	value, err := rowUser.Values()
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	if fmt.Sprintf("%x", middleware.SetSign(value[0].(string), SecretKey)) == cookieUser {
-	//		userID = value[0].(string)
-	//	}
-	//}
+	query := fmt.Sprintf("select id, full_url from %s.%s where user_id = '%s'", schema, table, user)
 
-	query := fmt.Sprintf("select id, full_url from %s.%s where user_id = '%s'", schema, table, userID)
 	row, err := db.GetRows(query)
 	if err != nil {
 		return nil, err
