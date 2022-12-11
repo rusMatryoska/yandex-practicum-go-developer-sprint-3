@@ -6,7 +6,7 @@ import (
 	s "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -22,7 +22,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
 	defer resp.Body.Close()
