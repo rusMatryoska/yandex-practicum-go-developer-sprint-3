@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
@@ -17,10 +18,8 @@ import (
 )
 
 const (
-	schema     = "public"
-	table      = "storage"
-	tableUsers = "users"
-	sequence   = "id_serial"
+	schema = "public"
+	table  = "storage"
 )
 
 type Storage interface {
@@ -201,10 +200,10 @@ type Database struct {
 }
 
 func (db *Database) GetRows(query string) (pgx.Rows, error) {
-	// ctx, cancel := context.WithTimeout(db.CTX, 5*time.Second)
-	// defer cancel()
+	ctx, cancel := context.WithTimeout(db.CTX, 5*time.Second)
+	defer cancel()
 
-	rows, err := db.ConnPool.Query(db.CTX, query)
+	rows, err := db.ConnPool.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +225,6 @@ func (db *Database) GetDBConnection() (*pgxpool.Pool, error) {
 	} else {
 		return pool, nil
 	}
-	// ..
 }
 
 func (db *Database) Ping() error {
@@ -281,27 +279,10 @@ func (db *Database) GetAllURLForUser(user string) ([]middleware.JSONStructForAut
 		JSONStructList []middleware.JSONStructForAuth
 		JSONStruct     middleware.JSONStructForAuth
 		returnErr      error
-		userID         string
 	)
 
-	queryUser := fmt.Sprintf("select user_id from %s.%s", schema, tableUsers)
-	rowUser, err := db.GetRows(queryUser)
-	if err != nil {
-		return nil, err
-	}
-	defer rowUser.Close()
-	//for rowUser.Next() {
-	//	value, err := rowUser.Values()
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	if fmt.Sprintf("%x", middleware.SetSign(value[0].(string), SecretKey)) == cookieUser {
-	//		userID = value[0].(string)
-	//	}
-	//}
+	query := fmt.Sprintf("select id, full_url from %s.%s where user_id = '%s'", schema, table, user)
 
-	query := fmt.Sprintf("select id, full_url from %s.%s where user_id = '%s'", schema, table, userID)
 	row, err := db.GetRows(query)
 	if err != nil {
 		return nil, err

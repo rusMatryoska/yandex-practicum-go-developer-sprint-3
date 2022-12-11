@@ -99,7 +99,7 @@ func main() {
 		fileItem := &storage.File{
 			BaseURL:  *baseURL,
 			Filepath: *filePath,
-			ID:       999,
+			ID:       0,
 			URLID:    make(map[string]int),
 			IDURL:    make(map[int]string),
 			UserURLs: make(map[string][]int),
@@ -117,7 +117,7 @@ func main() {
 		log.Println("WARNING: saving will be done through memory.")
 		memoryItem := &storage.Memory{
 			BaseURL:  *baseURL,
-			ID:       999,
+			ID:       0,
 			URLID:    make(map[string]int),
 			IDURL:    make(map[int]string),
 			UserURLs: make(map[string][]int),
