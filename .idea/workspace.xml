@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter-9 storage">
+    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter-9 statictest check">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/handlers/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/handler.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/middleware/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/middleware/middleware.go" afterDir="false" />
     </list>
@@ -46,7 +47,7 @@
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
 }</component>
-  <component name="RunManager" selected="Go Build.go build main.go">
+  <component name="RunManager" selected="Go Test.main_test.go">
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="yandex-practicum-go-developer-sprint-3" />
       <working_directory value="$PROJECT_DIR$" />
@@ -76,8 +77,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build main.go" />
         <item itemvalue="Go Test.main_test.go" />
+        <item itemvalue="Go Build.go build main.go" />
       </list>
     </recent_temporary>
   </component>
@@ -91,7 +92,8 @@
     <MESSAGE value="iter-9 fix auth" />
     <MESSAGE value="iter-9 io" />
     <MESSAGE value="iter-9 storage" />
-    <option name="LAST_COMMIT_MESSAGE" value="iter-9 storage" />
+    <MESSAGE value="iter-9 statictest check" />
+    <option name="LAST_COMMIT_MESSAGE" value="iter-9 statictest check" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
