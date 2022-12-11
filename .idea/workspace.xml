@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter-9 fix auth">
-      <change beforePath="$PROJECT_DIR$/cmd/shortener/main_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/shortener/main_test.go" afterDir="false" />
+    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter-9 io">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/middleware/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/middleware/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/storage/storage.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/storage/storage.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +91,8 @@
     <MESSAGE value="sprint-3 start" />
     <MESSAGE value="iter-9" />
     <MESSAGE value="iter-9 fix auth" />
-    <option name="LAST_COMMIT_MESSAGE" value="iter-9 fix auth" />
+    <MESSAGE value="iter-9 io" />
+    <option name="LAST_COMMIT_MESSAGE" value="iter-9 io" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

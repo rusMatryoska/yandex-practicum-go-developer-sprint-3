@@ -46,17 +46,19 @@ func (m *Memory) AddURL(url string, user string) (string, error) {
 	defer m.mu.Unlock()
 
 	if _, found := m.URLID[url]; !found {
-
 		m.ID = m.ID + 1
 		m.URLID[url] = m.ID
 		m.IDURL[m.ID] = url
 		m.UserURLs[user] = append(m.UserURLs[user], m.ID)
-
-		//log.Println("url", url, "added to storage, you can get access by shorten:", m.BaseURL+strconv.Itoa(m.ID),
-		//	" by user ", user)
 	}
-
-	return m.BaseURL + strconv.Itoa(m.URLID[url]), nil
+	_, found := m.URLID[url]
+	if m.URLID[url] != m.ID || m.IDURL[m.ID] != url || !found {
+		return "", errors.New("error while adding new URL")
+	} else {
+		log.Println("url", url, "added to storage, you can get access by shorten:",
+			m.BaseURL+strconv.Itoa(m.URLID[url]))
+		return m.BaseURL + strconv.Itoa(m.URLID[url]), nil
+	}
 }
 
 func (m *Memory) SearchURL(id int) (string, error) {
@@ -66,7 +68,7 @@ func (m *Memory) SearchURL(id int) (string, error) {
 	if m.IDURL[id] != "" {
 		return m.IDURL[id], nil
 	} else {
-		return "", errors.New("No URL with this ID")
+		return "", errors.New("no URL with this ID")
 	}
 
 }
@@ -128,8 +130,6 @@ func (f *File) AddURL(url string, user string) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	log.Println("AddURL")
-	log.Println(user)
 	if _, found := f.URLID[url]; !found {
 
 		f.ID = f.ID + 1
@@ -147,10 +147,16 @@ func (f *File) AddURL(url string, user string) (string, error) {
 			return "", err
 		}
 		os.WriteFile(f.Filepath, jsonString, 0644)
-
-		log.Println("url", url, "added to storage, you can get access by shorten:", f.BaseURL+strconv.Itoa(f.ID))
 	}
-	return f.BaseURL + strconv.Itoa(f.URLID[url]), nil
+
+	_, found := f.URLID[url]
+	if f.URLID[url] != f.ID || f.IDURL[f.ID] != url || !found {
+		return "", errors.New("error while adding new URL")
+	} else {
+		log.Println("url", url, "added to storage, you can get access by shorten:",
+			f.BaseURL+strconv.Itoa(f.URLID[url]))
+		return f.BaseURL + strconv.Itoa(f.URLID[url]), nil
+	}
 }
 
 func (f *File) SearchURL(id int) (string, error) {
@@ -315,8 +321,9 @@ func (db *Database) AddURL(url string, user string) (string, error) {
 		url, user)
 	if err := row.Scan(&newID); err != nil {
 		return "", fmt.Errorf("318: row.Scan: %w", err)
+	} else {
+		return db.BaseURL + strconv.FormatInt(newID, 10), nil
 	}
-	return db.BaseURL + strconv.FormatInt(newID, 10), nil
 }
 
 func (db *Database) SearchURL(id int) (string, error) {
