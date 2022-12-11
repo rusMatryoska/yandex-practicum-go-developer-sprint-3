@@ -51,11 +51,3 @@ export POSTGRESQL_URL='postgresql://pguser:pgpwd@127.0.0.1:5432/db'
 goose create create_table_storage sql
 migrate -path db/migrations -database "postgresql://pguser:pgpwd@127.0.0.1:5432/db?sslmode=disable" -verbose up
 
-//ctx, cancel := context.WithTimeout(storage.CTX, 5*time.Second)
-//defer cancel()
-//
-//tx, err := storage.ConnPool.Begin(storage.CTX)
-//if err != nil {
-//	log.Fatal(err)
-//}
-//defer tx.Rollback(storage.CTX)
