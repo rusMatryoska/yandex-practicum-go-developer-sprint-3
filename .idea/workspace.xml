@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter-9 statictest check">
+    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter-10 migrations">
+      <change afterPath="$PROJECT_DIR$/internal/migrations/20221104190228_create_table_storage.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/middleware/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/middleware/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/shortener/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/shortener/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/storage/storage.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/storage/storage.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +22,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="iter9" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -31,27 +35,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/victoria/Desktop/yandex_practicum_increments/yandex-practicum-go-developer-sprint-3&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/home/victoria/Desktop/yandex_practicum_increments/yandex-practicum-go-developer-sprint-3/internal/migrations",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
   }
-}</component>
-  <component name="RunManager" selected="Go Test.main_test.go">
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/internal/migrations" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build main.go">
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="yandex-practicum-go-developer-sprint-3" />
       <working_directory value="$PROJECT_DIR$" />
       <envs>
+        <env name="DATABASE_DSN" value="postgresql://pguser:pgpwd@127.0.0.1:5432/db" />
         <env name="FILE_STORAGE_PATH" value="" />
       </envs>
       <kind value="FILE" />
@@ -77,8 +87,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Test.main_test.go" />
         <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Test.main_test.go" />
       </list>
     </recent_temporary>
   </component>
@@ -93,7 +103,8 @@
     <MESSAGE value="iter-9 io" />
     <MESSAGE value="iter-9 storage" />
     <MESSAGE value="iter-9 statictest check" />
-    <option name="LAST_COMMIT_MESSAGE" value="iter-9 statictest check" />
+    <MESSAGE value="iter-10 migrations" />
+    <option name="LAST_COMMIT_MESSAGE" value="iter-10 migrations" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

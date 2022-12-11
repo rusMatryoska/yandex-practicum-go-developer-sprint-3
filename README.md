@@ -46,6 +46,11 @@ docker run --name habr-pg-13.3 -p 5432:5432 -e POSTGRES_USER=pguser -e POSTGRES_
 
 url = postgresql://pguser:pgpwd@127.0.0.1:5432/db
 
+export GOOSE_DBSTRING='host=localhost user=pguser password=pgpwd database=db'
+export POSTGRESQL_URL='postgresql://pguser:pgpwd@127.0.0.1:5432/db'
+goose create create_table_storage sql
+migrate -path db/migrations -database "postgresql://pguser:pgpwd@127.0.0.1:5432/db?sslmode=disable" -verbose up
+
 //ctx, cancel := context.WithTimeout(storage.CTX, 5*time.Second)
 //defer cancel()
 //
