@@ -63,12 +63,11 @@ func (sh StorageHandlers) PostAddURLHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	url := string(urlBytes)
-	user := m.GetCookie(r, m.CookieUserSign)
-	//user := r.Context().Value("user").(string)
-	//if user == "" {
-	//	user = m.GetCookie(r, m.CookieUserSign)
-	//}
-	//log.Println("PostAddURLHandler user=", user)
+	user := r.Context().Value("user").(string)
+	if user == "" {
+		user = m.GetCookie(r, m.CookieUserID)
+	}
+
 	fullShortenURL, err := sh.storage.AddURL(url, user)
 	w.Header().Set("Content-Type", "text/html")
 
@@ -93,6 +92,10 @@ func (sh StorageHandlers) ShortenBatchHandler(w http.ResponseWriter, r *http.Req
 		batchResponseList []m.JSONBatchResponse
 	)
 	user := r.Context().Value("user").(string)
+	if user == "" {
+		user = m.GetCookie(r, m.CookieUserID)
+	}
+
 	urlBytes, err := ReadBody(w, r)
 	if err != nil {
 		log.Printf("failed read request: %v", err)
@@ -134,6 +137,10 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	user := r.Context().Value("user").(string)
+	if user == "" {
+		user = m.GetCookie(r, m.CookieUserID)
+	}
+
 	err = json.Unmarshal(urlBytes, &newURLFull)
 	if err != nil {
 		log.Println("failed to read request body", err)
@@ -185,9 +192,11 @@ func (sh StorageHandlers) GetURLHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (sh StorageHandlers) GetAllURLsHandler(w http.ResponseWriter, r *http.Request) {
-	//user := r.Context().Value("user").(string)
-	user := m.GetCookie(r, m.CookieUserSign)
-	//log.Println("GetAllURLsHandler user=", user)
+	user := r.Context().Value("user").(string)
+	if user == "" {
+		user = m.GetCookie(r, m.CookieUserID)
+	}
+
 	JSONStructList, err := sh.storage.GetAllURLForUser(user)
 
 	w.Header().Set("Content-Type", "application/json")
