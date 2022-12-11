@@ -163,8 +163,12 @@ func (s *MiddlewareStruct) CheckAuth(next http.Handler) http.Handler {
 			//w.Header().Set("Authorization", UserID)
 		}
 
-		ctx := context.WithValue(r.Context(), "user", UserID)
+		ctx := context.WithValue(context.Background(), RequestIDKey{}, UserID)
+		//context.WithValue(r.Context(), "user", UserID)
+
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
 }
+
+type RequestIDKey struct{}
