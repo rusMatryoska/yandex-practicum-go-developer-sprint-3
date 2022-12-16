@@ -239,10 +239,10 @@ func (db *Database) Ping() error {
 func (db *Database) AddURL(url string, user string) (string, error) {
 	var newID int64
 
-	row := db.ConnPool.QueryRow(db.CTX, "INSERT INTO public.storage (full_url, user_id) VALUES ($1, $2) RETURNING id",
-		url, user)
+	row := db.ConnPool.QueryRow(db.CTX,
+		"INSERT INTO public.storage (full_url, user_id) VALUES ($1, $2) RETURNING id", url, user)
 	if err := row.Scan(&newID); err != nil {
-		return "", fmt.Errorf("318: row.Scan: %w", err)
+		return "", middleware.ErrConflict
 	} else {
 		return db.BaseURL + strconv.FormatInt(newID, 10), nil
 	}

@@ -74,9 +74,7 @@ func (sh StorageHandlers) PostAddURLHandler(w http.ResponseWriter, r *http.Reque
 
 	if err != nil {
 		log.Println("unable to add url", err)
-		w.WriteHeader(http.StatusConflict)
-
-		if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+		if errors.Is(m.NewStorageError(m.ErrConflict, "409"), err) {
 			w.WriteHeader(http.StatusConflict)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -106,15 +104,18 @@ func (sh StorageHandlers) ShortenBatchHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
 
 	json.Unmarshal([]byte(urlBytes), &batchRequestList)
 	for i := range batchRequestList {
 		fullShortenURL, err := sh.storage.AddURL(batchRequestList[i].OriginalURL, user)
-		//if !errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
-		if err != nil {
+		if errors.Is(m.NewStorageError(m.ErrConflict, "409"), err) {
+			w.WriteHeader(http.StatusConflict)
+			return
+		} else if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
+		} else {
+			w.WriteHeader(http.StatusCreated)
 		}
 
 		batch := &m.JSONBatchResponse{
@@ -144,31 +145,20 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	err = json.Unmarshal(urlBytes, &newURLFull)
-	if err != nil {
-		log.Println("failed to read request body", err)
-		http.Error(w, "failed to read request body", http.StatusInternalServerError)
-		return
-	}
 
 	fullShortenURL, err := sh.storage.AddURL(newURLFull.URLFull, user)
 	if err != nil {
-		log.Println("failed to read request body", err)
-		http.Error(w, "failed to add url", http.StatusInternalServerError)
-		return
-	}
-
-	newURLShorten.URLShorten = fullShortenURL
-	w.Header().Set("Content-Type", "application/json")
-	if err != nil {
-		if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+		if errors.Is(m.NewStorageError(m.ErrConflict, "409"), err) {
 			w.WriteHeader(http.StatusConflict)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	newURLShorten.URLShorten = fullShortenURL
 	json.NewEncoder(w).Encode(newURLShorten)
 }
 
@@ -203,12 +193,11 @@ func (sh StorageHandlers) GetAllURLsHandler(w http.ResponseWriter, r *http.Reque
 
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		if errors.As(m.NewStorageError(m.ErrNoContent, "204"), &err) {
+		if errors.Is(m.NewStorageError(m.ErrNoContent, "204"), err) {
 			w.WriteHeader(http.StatusNoContent)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		w.WriteHeader(http.StatusNoContent)
 	} else {
 		json.NewEncoder(w).Encode(JSONStructList)
 		w.WriteHeader(http.StatusOK)
