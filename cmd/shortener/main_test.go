@@ -6,7 +6,7 @@ import (
 	s "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -22,7 +22,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 
-	respBody, err := io.ReadAll(resp.Body)
+	respBody, err := ioutil.ReadAll(resp.Body)
 	require.NoError(t, err)
 
 	defer resp.Body.Close()
@@ -34,7 +34,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 func TestRouter(t *testing.T) {
 	storageItem := &s.Memory{
 		BaseURL:  "http://localhost:8080/",
-		ID:       0,
+		ID:       1000,
 		URLID:    make(map[string]int),
 		IDURL:    make(map[int]string),
 		UserURLs: make(map[string][]int),
@@ -50,11 +50,11 @@ func TestRouter(t *testing.T) {
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
-	status, body := testRequest(t, ts, http.MethodGet, "/1", "")
+	status, body := testRequest(t, ts, http.MethodGet, "/1001", "")
 	assert.Equal(t, http.StatusNotFound, status)
-	assert.Equal(t, "There is no URL with this ID\n", body)
+	assert.Equal(t, "There is no url with this id\n", body)
 
-	status, body = testRequest(t, ts, http.MethodGet, "/a", "")
+	status, body = testRequest(t, ts, http.MethodGet, "/1111a", "")
 	assert.Equal(t, http.StatusBadRequest, status)
 	assert.Equal(t, "ID parameter must be Integer type\n", body)
 
@@ -64,16 +64,20 @@ func TestRouter(t *testing.T) {
 
 	status, body = testRequest(t, ts, http.MethodPost, "/", "https://github.com/")
 	assert.Equal(t, http.StatusCreated, status)
-	assert.Equal(t, "http://localhost:8080/1", body)
+	assert.Equal(t, "http://localhost:8080/1001", body)
 
-	status, _ = testRequest(t, ts, http.MethodGet, "/1", "")
+	status, _ = testRequest(t, ts, http.MethodGet, "/1001", "")
 	assert.Equal(t, http.StatusOK, status)
+
+	//status, body = testRequest(t, ts, http.MethodGet, "/api/user/urls", "")
+	//assert.Equal(t, http.StatusNoContent, status)
+	//assert.Equal(t, "[{\"short_url\":\"http://localhost:8080/1001\",\"original_url\":\"https://github.com/\"}]", body)
 
 	status, body = testRequest(t, ts, http.MethodPost, "/api/shorten", "{\"url\":\"https://www.google.ru/\"}")
 	assert.Equal(t, http.StatusCreated, status)
-	assert.Equal(t, "{\"result\":\"http://localhost:8080/2\"}\n", body)
+	assert.Equal(t, "{\"result\":\"http://localhost:8080/1002\"}\n", body)
 
-	status, _ = testRequest(t, ts, http.MethodGet, "/2", "")
+	status, _ = testRequest(t, ts, http.MethodGet, "/1002", "")
 	assert.Equal(t, http.StatusOK, status)
 
 	status, body = testRequest(t, ts, http.MethodGet, "/ping", "")
