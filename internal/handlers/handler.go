@@ -3,6 +3,7 @@ package handlers
 import (
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -75,11 +76,11 @@ func (sh StorageHandlers) PostAddURLHandler(w http.ResponseWriter, r *http.Reque
 		log.Println("unable to add url", err)
 		w.WriteHeader(http.StatusConflict)
 
-		//if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
-		//	w.WriteHeader(http.StatusConflict)
-		//} else {
-		//	w.WriteHeader(http.StatusInternalServerError)
-		//}
+		if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+			w.WriteHeader(http.StatusConflict)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -159,11 +160,11 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 	newURLShorten.URLShorten = fullShortenURL
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		//if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
-		//	w.WriteHeader(http.StatusConflict)
-		//} else {
-		//	w.WriteHeader(http.StatusInternalServerError)
-		//}
+		if errors.As(m.NewStorageError(m.ErrConflict, "409"), &err) {
+			w.WriteHeader(http.StatusConflict)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusCreated)
@@ -202,11 +203,11 @@ func (sh StorageHandlers) GetAllURLsHandler(w http.ResponseWriter, r *http.Reque
 
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		//if errors.As(m.NewStorageError(m.ErrNoContent, "204"), &err) {
-		//	w.WriteHeader(http.StatusNoContent)
-		//} else {
-		//	w.WriteHeader(http.StatusInternalServerError)
-		//}
+		if errors.As(m.NewStorageError(m.ErrNoContent, "204"), &err) {
+			w.WriteHeader(http.StatusNoContent)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		w.WriteHeader(http.StatusNoContent)
 	} else {
 		json.NewEncoder(w).Encode(JSONStructList)

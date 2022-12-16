@@ -200,7 +200,7 @@ type Database struct {
 }
 
 func (db *Database) GetRows(query string) (pgx.Rows, error) {
-	ctx, cancel := context.WithTimeout(db.CTX, 5*time.Second)
+	ctx, cancel := context.WithTimeout(db.CTX, 10*time.Second)
 	defer cancel()
 
 	rows, err := db.ConnPool.Query(ctx, query)
