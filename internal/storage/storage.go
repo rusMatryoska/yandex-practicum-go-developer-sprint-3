@@ -242,7 +242,13 @@ func (db *Database) AddURL(url string, user string) (string, error) {
 	row := db.ConnPool.QueryRow(db.CTX,
 		"INSERT INTO public.storage (full_url, user_id) VALUES ($1, $2) RETURNING id", url, user)
 	if err := row.Scan(&newID); err != nil {
-		return "", middleware.ErrConflict
+		id, err := db.SearchID(url)
+		log.Println(err)
+		if err == nil {
+			return db.BaseURL + strconv.Itoa(id), middleware.ErrConflict
+		} else {
+			return "", middleware.ErrConflict
+		}
 	} else {
 		return db.BaseURL + strconv.FormatInt(newID, 10), nil
 	}
@@ -314,4 +320,30 @@ func (db *Database) GetAllURLForUser(user string) ([]middleware.JSONStructForAut
 	}
 	fmt.Sprintln(JSONStructList)
 	return JSONStructList, returnErr
+}
+
+func (db *Database) SearchID(url string) (int, error) {
+	var id int
+	query := fmt.Sprintf("select id from %s.%s where full_url = '%s'", schema, table, url)
+	row, err := db.GetRows(query)
+	if err != nil {
+		return 0, err
+	}
+	defer row.Close()
+
+	for row.Next() {
+		value, err := row.Values()
+		if err != nil {
+			return 0, err
+		}
+
+		if value[0] == nil {
+			id = 0
+		} else {
+			id = int(value[0].(int32))
+		}
+	}
+
+	return id, nil
+
 }
