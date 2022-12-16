@@ -145,6 +145,12 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	err = json.Unmarshal(urlBytes, &newURLFull)
+	if err != nil {
+		http.Error(w, "unmarshall failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 
 	fullShortenURL, err := sh.storage.AddURL(newURLFull.URLFull, user)
 	if err != nil {
@@ -157,7 +163,6 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusCreated)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	newURLShorten.URLShorten = fullShortenURL
 	json.NewEncoder(w).Encode(newURLShorten)
 }
