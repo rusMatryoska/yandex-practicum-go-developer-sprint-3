@@ -243,7 +243,6 @@ func (db *Database) AddURL(url string, user string) (string, error) {
 		"INSERT INTO public.storage (full_url, user_id) VALUES ($1, $2) RETURNING id", url, user)
 	if err := row.Scan(&newID); err != nil {
 		id, err := db.SearchID(url)
-		log.Println(err)
 		if err == nil {
 			return db.BaseURL + strconv.Itoa(id), middleware.ErrConflict
 		} else {
