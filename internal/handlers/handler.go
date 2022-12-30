@@ -2,17 +2,17 @@ package handlers
 
 import (
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"errors"
+	"github.com/gorilla/mux"
+	m "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/middleware"
+	s "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/storage"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/gorilla/mux"
-	m "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/middleware"
-	s "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/storage"
 )
 
 type StorageHandlers struct {
@@ -46,7 +46,8 @@ func ReadBody(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 }
 
 func (sh StorageHandlers) PingDB(w http.ResponseWriter, r *http.Request) {
-	err := sh.storage.Ping()
+	ctx := context.Background()
+	err := sh.storage.Ping(ctx)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -56,6 +57,10 @@ func (sh StorageHandlers) PingDB(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh StorageHandlers) PostAddURLHandler(w http.ResponseWriter, r *http.Request) {
+
+	//ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx := context.Background()
+	//defer cancel()
 
 	urlBytes, err := ReadBody(w, r)
 	if err != nil {
@@ -69,7 +74,7 @@ func (sh StorageHandlers) PostAddURLHandler(w http.ResponseWriter, r *http.Reque
 		user = m.GetCookie(r, m.CookieUserID)
 	}
 
-	fullShortenURL, err := sh.storage.AddURL(url, user)
+	fullShortenURL, err := sh.storage.AddURL(ctx, url, user)
 	w.Header().Set("Content-Type", "text/html")
 
 	if err != nil {
@@ -107,7 +112,8 @@ func (sh StorageHandlers) ShortenBatchHandler(w http.ResponseWriter, r *http.Req
 
 	json.Unmarshal([]byte(urlBytes), &batchRequestList)
 	for i := range batchRequestList {
-		fullShortenURL, err := sh.storage.AddURL(batchRequestList[i].OriginalURL, user)
+		ctx := context.Background()
+		fullShortenURL, err := sh.storage.AddURL(ctx, batchRequestList[i].OriginalURL, user)
 		if errors.Is(m.NewStorageError(m.ErrConflict, "409"), err) {
 			w.WriteHeader(http.StatusConflict)
 			return
@@ -152,7 +158,8 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 
-	fullShortenURL, err := sh.storage.AddURL(newURLFull.URLFull, user)
+	ctx := context.Background()
+	fullShortenURL, err := sh.storage.AddURL(ctx, newURLFull.URLFull, user)
 	if err != nil {
 		if errors.Is(m.NewStorageError(m.ErrConflict, "409"), err) {
 			w.WriteHeader(http.StatusConflict)
@@ -176,7 +183,8 @@ func (sh StorageHandlers) GetURLHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "ID parameter must be Integer type", http.StatusBadRequest)
 		return
 	}
-	url, err := sh.storage.SearchURL(id)
+	ctx := context.Background()
+	url, err := sh.storage.SearchURL(ctx, id)
 	if err != nil {
 		http.Error(w, "There is no URL with this ID", http.StatusNotFound)
 		return
@@ -194,7 +202,8 @@ func (sh StorageHandlers) GetAllURLsHandler(w http.ResponseWriter, r *http.Reque
 		user = m.GetCookie(r, m.CookieUserID)
 	}
 
-	JSONStructList, err := sh.storage.GetAllURLForUser(user)
+	ctx := context.Background()
+	JSONStructList, err := sh.storage.GetAllURLForUser(ctx, user)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {

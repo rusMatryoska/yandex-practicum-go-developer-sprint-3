@@ -5,28 +5,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
-	"os"
-	"strconv"
-	"sync"
-	"time"
-
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	middleware "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/middleware"
-)
-
-const (
-	schema = "public"
-	table  = "storage"
+	"log"
+	"os"
+	"strconv"
+	"sync"
 )
 
 type Storage interface {
-	AddURL(url string, user string) (string, error)
-	SearchURL(id int) (string, error)
-	GetAllURLForUser(user string) ([]middleware.JSONStructForAuth, error)
-	Ping() error
+	AddURL(ctx context.Context, url string, user string) (string, error)
+	SearchURL(ctx context.Context, id int) (string, error)
+	GetAllURLForUser(ctx context.Context, user string) ([]middleware.JSONStructForAuth, error)
+	Ping(ctx context.Context) error
 }
 
 //MEMORY PART//
@@ -40,7 +33,7 @@ type Memory struct {
 	UserURLs map[string][]int
 }
 
-func (m *Memory) AddURL(url string, user string) (string, error) {
+func (m *Memory) AddURL(ctx context.Context, url string, user string) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -60,7 +53,7 @@ func (m *Memory) AddURL(url string, user string) (string, error) {
 	}
 }
 
-func (m *Memory) SearchURL(id int) (string, error) {
+func (m *Memory) SearchURL(ctx context.Context, id int) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -72,27 +65,29 @@ func (m *Memory) SearchURL(id int) (string, error) {
 
 }
 
-func (m *Memory) GetAllURLForUser(user string) ([]middleware.JSONStructForAuth, error) {
+func (m *Memory) GetAllURLForUser(ctx context.Context, user string) ([]middleware.JSONStructForAuth, error) {
 
 	var (
 		JSONStructList []middleware.JSONStructForAuth
 		JSONStruct     middleware.JSONStructForAuth
 	)
+	m.mu.Lock()
+	URLs := m.UserURLs[user]
+	m.mu.Unlock()
 
 	if len(m.UserURLs[user]) == 0 {
 		return JSONStructList, middleware.ErrNoContent
 	} else {
-		for i := range m.UserURLs[user] {
+		for i := range URLs {
 			JSONStruct.ShortURL = m.BaseURL + strconv.Itoa(m.UserURLs[user][i])
-			JSONStruct.OriginalURL, _ = m.SearchURL(m.UserURLs[user][i])
+			JSONStruct.OriginalURL, _ = m.SearchURL(ctx, m.UserURLs[user][i])
 			JSONStructList = append(JSONStructList, JSONStruct)
-
 		}
 		return JSONStructList, nil
 	}
 }
 
-func (m *Memory) Ping() error {
+func (m *Memory) Ping(ctx context.Context) error {
 	return errors.New("there is no connection to DB")
 }
 
@@ -124,7 +119,7 @@ func (f *File) NewFromFile(baseURL string, targets []middleware.JSONStruct) {
 	}
 }
 
-func (f *File) AddURL(url string, user string) (string, error) {
+func (f *File) AddURL(ctx context.Context, url string, user string) (string, error) {
 
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -158,13 +153,13 @@ func (f *File) AddURL(url string, user string) (string, error) {
 	}
 }
 
-func (f *File) SearchURL(id int) (string, error) {
+func (f *File) SearchURL(ctx context.Context, id int) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return f.IDURL[id], nil
 }
 
-func (f *File) GetAllURLForUser(user string) ([]middleware.JSONStructForAuth, error) {
+func (f *File) GetAllURLForUser(ctx context.Context, user string) ([]middleware.JSONStructForAuth, error) {
 	var (
 		JSONStructList []middleware.JSONStructForAuth
 		JSONStruct     middleware.JSONStructForAuth
@@ -177,7 +172,7 @@ func (f *File) GetAllURLForUser(user string) ([]middleware.JSONStructForAuth, er
 	} else {
 		for i := range f.UserURLs[user] {
 			JSONStruct.ShortURL = f.BaseURL + strconv.Itoa(f.UserURLs[user][i])
-			JSONStruct.OriginalURL, _ = f.SearchURL(f.UserURLs[user][i])
+			JSONStruct.OriginalURL, _ = f.SearchURL(ctx, f.UserURLs[user][i])
 			JSONStructList = append(JSONStructList, JSONStruct)
 
 		}
@@ -185,7 +180,7 @@ func (f *File) GetAllURLForUser(user string) ([]middleware.JSONStructForAuth, er
 	}
 }
 
-func (f *File) Ping() error {
+func (f *File) Ping(ctx context.Context) error {
 	return errors.New("there is no connection to DB")
 }
 
@@ -194,14 +189,11 @@ func (f *File) Ping() error {
 type Database struct {
 	BaseURL        string
 	DBConnURL      string
-	CTX            context.Context
 	ConnPool       *pgxpool.Pool
 	DBErrorConnect error
 }
 
-func (db *Database) GetRows(query string) (pgx.Rows, error) {
-	ctx, cancel := context.WithTimeout(db.CTX, 10*time.Second)
-	defer cancel()
+func (db *Database) GetRows(ctx context.Context, query string) (pgx.Rows, error) {
 
 	rows, err := db.ConnPool.Query(ctx, query)
 	if err != nil {
@@ -210,16 +202,16 @@ func (db *Database) GetRows(query string) (pgx.Rows, error) {
 	return rows, nil
 }
 
-func (db *Database) Exec(query string) (pgconn.CommandTag, error) {
-	res, err := db.ConnPool.Exec(db.CTX, query)
+func (db *Database) Exec(ctx context.Context, query string) (pgconn.CommandTag, error) {
+	res, err := db.ConnPool.Exec(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (db *Database) GetDBConnection() (*pgxpool.Pool, error) {
-	pool, err := pgxpool.Connect(db.CTX, db.DBConnURL)
+func (db *Database) GetDBConnection(ctx context.Context) (*pgxpool.Pool, error) {
+	pool, err := pgxpool.Connect(ctx, db.DBConnURL)
 	if err != nil {
 		return nil, err
 	} else {
@@ -227,22 +219,22 @@ func (db *Database) GetDBConnection() (*pgxpool.Pool, error) {
 	}
 }
 
-func (db *Database) Ping() error {
+func (db *Database) Ping(ctx context.Context) error {
 	if db.DBErrorConnect != nil {
 		return db.DBErrorConnect
 	} else {
-		err := db.ConnPool.Ping(db.CTX)
+		err := db.ConnPool.Ping(ctx)
 		return err
 	}
 }
 
-func (db *Database) AddURL(url string, user string) (string, error) {
+func (db *Database) AddURL(ctx context.Context, url string, user string) (string, error) {
 	var newID int64
 
-	row := db.ConnPool.QueryRow(db.CTX,
+	row := db.ConnPool.QueryRow(ctx,
 		"INSERT INTO public.storage (full_url, user_id) VALUES ($1, $2) RETURNING id", url, user)
 	if err := row.Scan(&newID); err != nil {
-		id, err := db.SearchID(url)
+		id, err := db.SearchID(ctx, url)
 		if err == nil {
 			return db.BaseURL + strconv.Itoa(id), middleware.ErrConflict
 		} else {
@@ -253,10 +245,13 @@ func (db *Database) AddURL(url string, user string) (string, error) {
 	}
 }
 
-func (db *Database) SearchURL(id int) (string, error) {
+func (db *Database) SearchURL(ctx context.Context, id int) (string, error) {
 	var url string
-	query := fmt.Sprintf("select full_url from %s.%s where id = %v", schema, table, id)
-	row, err := db.GetRows(query)
+	//query := fmt.Sprintf("select full_url from $1.$2 where id = $3", schema, table, id)
+	//log.Println(query)
+	//row, err := db.GetRows(ctx, query)
+	row, err := db.ConnPool.Query(ctx, "select full_url from public.storage where id = $1", id)
+
 	if err != nil {
 		return "", err
 	}
@@ -279,16 +274,19 @@ func (db *Database) SearchURL(id int) (string, error) {
 
 }
 
-func (db *Database) GetAllURLForUser(user string) ([]middleware.JSONStructForAuth, error) {
+func (db *Database) GetAllURLForUser(ctx context.Context, user string) ([]middleware.JSONStructForAuth, error) {
 	var (
 		JSONStructList []middleware.JSONStructForAuth
 		JSONStruct     middleware.JSONStructForAuth
 		returnErr      error
 	)
 
-	query := fmt.Sprintf("select id, full_url from %s.%s where user_id = '%s'", schema, table, user)
+	//query := fmt.Sprintf("select id, full_url from %s.%s where user_id = $1", schema, table, user)
+	//log.Println(query)
+	//row, err := db.GetRows(ctx, query)
 
-	row, err := db.GetRows(query)
+	row, err := db.ConnPool.Query(ctx, "select id, full_url from public.storage where user_id = $1", user)
+
 	if err != nil {
 		return nil, err
 	}
@@ -321,10 +319,14 @@ func (db *Database) GetAllURLForUser(user string) ([]middleware.JSONStructForAut
 	return JSONStructList, returnErr
 }
 
-func (db *Database) SearchID(url string) (int, error) {
+func (db *Database) SearchID(ctx context.Context, url string) (int, error) {
 	var id int
-	query := fmt.Sprintf("select id from %s.%s where full_url = '%s'", schema, table, url)
-	row, err := db.GetRows(query)
+	//query := fmt.Sprintf("select id from %s.%s where full_url =", schema, table)
+	//query = query + fmt.Sprintf("'$1'", url)
+	//log.Println(query)
+	//row, err := db.GetRows(ctx, query)
+	row, err := db.ConnPool.Query(ctx, "select id from public.storage where full_url = $1", url)
+
 	if err != nil {
 		return 0, err
 	}
