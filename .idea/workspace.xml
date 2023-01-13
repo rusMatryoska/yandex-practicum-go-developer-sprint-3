@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter-10 migrations">
+    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter13 SearchURL">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/middleware/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/middleware/middleware.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/storage/storage.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/storage/storage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/handler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,10 +17,23 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="iter11" />
+        <entry key="$PROJECT_DIR$" value="iter17" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="924b5b03-2297-4806-a2d2-14f44e062948" />
+        <option name="url" value="https://github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3.git" />
+      </UrlAndAccount>
+    </option>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -41,7 +53,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/victoria/Desktop/yandex_practicum_increments/yandex-practicum-go-developer-sprint-3/internal/migrations&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/victoria/Desktop/yandex_practicum_increments/yandex-practicum-go-developer-sprint-4&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
@@ -52,18 +64,37 @@
       <recent name="$PROJECT_DIR$/internal/migrations" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Test.main_test.go">
+  <component name="RunManager" selected="Go Build.go build main.go">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="yandex-practicum-go-developer-sprint-3" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="yandex-practicum-go-developer-sprint-3" />
       <working_directory value="$PROJECT_DIR$" />
       <envs>
-        <env name="DATABASE_DSN" value="postgresql://pguser:pgpwd@127.0.0.1:5432/db" />
-        <env name="FILE_STORAGE_PATH" value="" />
+        <env name="DATABASE_DSN1" value="postgresql://pguser:pgpwd@127.0.0.1:5432/db" />
+        <env name="FILE_STORAGE_PATH1" value="" />
       </envs>
       <kind value="FILE" />
       <package value="github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/cmd/shortener/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="yandex-practicum-go-developer-sprint-3" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
       <method v="2" />
     </configuration>
     <configuration name="main_test.go" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
@@ -83,8 +114,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Test.main_test.go" />
         <item itemvalue="Go Test.main_test.go" />
         <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Test.main_test.go" />
       </list>
     </recent_temporary>
   </component>
@@ -111,7 +145,14 @@
     <MESSAGE value="iter-9 storage" />
     <MESSAGE value="iter-9 statictest check" />
     <MESSAGE value="iter-10 migrations" />
-    <option name="LAST_COMMIT_MESSAGE" value="iter-10 migrations" />
+    <MESSAGE value="iter-12" />
+    <MESSAGE value="iter17" />
+    <MESSAGE value="iter13" />
+    <MESSAGE value="iter13 fix" />
+    <MESSAGE value="iter13 r.Context()" />
+    <MESSAGE value="iter13 (_ context.Context," />
+    <MESSAGE value="iter13 SearchURL" />
+    <option name="LAST_COMMIT_MESSAGE" value="iter13 SearchURL" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
