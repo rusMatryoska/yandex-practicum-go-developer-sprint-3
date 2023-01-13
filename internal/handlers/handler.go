@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"compress/gzip"
-	"context"
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
@@ -58,9 +57,7 @@ func (sh StorageHandlers) PingDB(w http.ResponseWriter, r *http.Request) {
 
 func (sh StorageHandlers) PostAddURLHandler(w http.ResponseWriter, r *http.Request) {
 
-	//ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	ctx := context.Background()
-	//defer cancel()
+	ctx := r.Context()
 
 	urlBytes, err := ReadBody(w, r)
 	if err != nil {
@@ -112,7 +109,7 @@ func (sh StorageHandlers) ShortenBatchHandler(w http.ResponseWriter, r *http.Req
 
 	json.Unmarshal([]byte(urlBytes), &batchRequestList)
 	for i := range batchRequestList {
-		ctx := context.Background()
+		ctx := r.Context()
 		fullShortenURL, err := sh.storage.AddURL(ctx, batchRequestList[i].OriginalURL, user)
 		if errors.Is(m.NewStorageError(m.ErrConflict, "409"), err) {
 			w.WriteHeader(http.StatusConflict)
@@ -158,7 +155,7 @@ func (sh StorageHandlers) ShortenHandler(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 
-	ctx := context.Background()
+	ctx := r.Context()
 	fullShortenURL, err := sh.storage.AddURL(ctx, newURLFull.URLFull, user)
 	if err != nil {
 		if errors.Is(m.NewStorageError(m.ErrConflict, "409"), err) {
@@ -183,7 +180,7 @@ func (sh StorageHandlers) GetURLHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "ID parameter must be Integer type", http.StatusBadRequest)
 		return
 	}
-	ctx := context.Background()
+	ctx := r.Context()
 	url, err := sh.storage.SearchURL(ctx, id)
 	if err != nil {
 		http.Error(w, "There is no URL with this ID", http.StatusNotFound)
@@ -202,7 +199,7 @@ func (sh StorageHandlers) GetAllURLsHandler(w http.ResponseWriter, r *http.Reque
 		user = m.GetCookie(r, m.CookieUserID)
 	}
 
-	ctx := context.Background()
+	ctx := r.Context()
 	JSONStructList, err := sh.storage.GetAllURLForUser(ctx, user)
 
 	w.Header().Set("Content-Type", "application/json")
