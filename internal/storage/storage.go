@@ -70,20 +70,30 @@ func (m *Memory) GetAllURLForUser(ctx context.Context, user string) ([]middlewar
 		JSONStructList []middleware.JSONStructForAuth
 		JSONStruct     middleware.JSONStructForAuth
 	)
+
 	m.mu.Lock()
-	URLs := m.UserURLs[user]
-	m.mu.Unlock()
+	defer m.mu.Unlock()
+
+	URLs := make([]int, len(m.UserURLs[user]))
+	copy(URLs, m.UserURLs[user])
 
 	if len(m.UserURLs[user]) == 0 {
 		return JSONStructList, middleware.ErrNoContent
 	} else {
 		for i := range URLs {
 			JSONStruct.ShortURL = m.BaseURL + strconv.Itoa(m.UserURLs[user][i])
-			JSONStruct.OriginalURL, _ = m.SearchURL(ctx, m.UserURLs[user][i])
+
+			if m.IDURL[m.UserURLs[user][i]] != "" {
+				JSONStruct.OriginalURL = m.IDURL[m.UserURLs[user][i]]
+			} else {
+				JSONStruct.OriginalURL = ""
+			}
+
 			JSONStructList = append(JSONStructList, JSONStruct)
 		}
 		return JSONStructList, nil
 	}
+
 }
 
 func (m *Memory) Ping(_ context.Context) error {
@@ -164,14 +174,15 @@ func (f *File) GetAllURLForUser(ctx context.Context, user string) ([]middleware.
 		JSONStruct     middleware.JSONStructForAuth
 	)
 
-	log.Println(user)
-	log.Println(f.UserURLs)
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	if len(f.UserURLs[user]) == 0 {
 		return JSONStructList, middleware.ErrNoContent
 	} else {
 		for i := range f.UserURLs[user] {
 			JSONStruct.ShortURL = f.BaseURL + strconv.Itoa(f.UserURLs[user][i])
-			JSONStruct.OriginalURL, _ = f.SearchURL(ctx, f.UserURLs[user][i])
+			JSONStruct.OriginalURL = f.IDURL[f.UserURLs[user][i]]
 			JSONStructList = append(JSONStructList, JSONStruct)
 
 		}
