@@ -32,7 +32,7 @@ type Memory struct {
 	UserURLs map[string][]int
 }
 
-func (m *Memory) AddURL(ctx context.Context, url string, user string) (string, error) {
+func (m *Memory) AddURL(_ context.Context, url string, user string) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -52,7 +52,7 @@ func (m *Memory) AddURL(ctx context.Context, url string, user string) (string, e
 	}
 }
 
-func (m *Memory) SearchURL(ctx context.Context, id int) (string, error) {
+func (m *Memory) SearchURL(_ context.Context, id int) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -86,7 +86,7 @@ func (m *Memory) GetAllURLForUser(ctx context.Context, user string) ([]middlewar
 	}
 }
 
-func (m *Memory) Ping(ctx context.Context) error {
+func (m *Memory) Ping(_ context.Context) error {
 	return errors.New("there is no connection to DB")
 }
 
@@ -118,7 +118,7 @@ func (f *File) NewFromFile(baseURL string, targets []middleware.JSONStruct) {
 	}
 }
 
-func (f *File) AddURL(ctx context.Context, url string, user string) (string, error) {
+func (f *File) AddURL(_ context.Context, url string, user string) (string, error) {
 
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -152,7 +152,7 @@ func (f *File) AddURL(ctx context.Context, url string, user string) (string, err
 	}
 }
 
-func (f *File) SearchURL(ctx context.Context, id int) (string, error) {
+func (f *File) SearchURL(_ context.Context, id int) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return f.IDURL[id], nil
@@ -179,7 +179,7 @@ func (f *File) GetAllURLForUser(ctx context.Context, user string) ([]middleware.
 	}
 }
 
-func (f *File) Ping(ctx context.Context) error {
+func (f *File) Ping(_ context.Context) error {
 	return errors.New("there is no connection to DB")
 }
 
