@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	middleware "github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3/internal/middleware"
 	"log"
@@ -193,15 +192,6 @@ type Database struct {
 	DBErrorConnect error
 }
 
-func (db *Database) GetRows(ctx context.Context, query string) (pgx.Rows, error) {
-
-	rows, err := db.ConnPool.Query(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	return rows, nil
-}
-
 func (db *Database) Exec(ctx context.Context, query string) (pgconn.CommandTag, error) {
 	res, err := db.ConnPool.Exec(ctx, query)
 	if err != nil {
@@ -247,9 +237,7 @@ func (db *Database) AddURL(ctx context.Context, url string, user string) (string
 
 func (db *Database) SearchURL(ctx context.Context, id int) (string, error) {
 	var url string
-	//query := fmt.Sprintf("select full_url from $1.$2 where id = $3", schema, table, id)
-	//log.Println(query)
-	//row, err := db.GetRows(ctx, query)
+
 	row, err := db.ConnPool.Query(ctx, "select full_url from public.storage where id = $1", id)
 
 	if err != nil {
@@ -270,6 +258,10 @@ func (db *Database) SearchURL(ctx context.Context, id int) (string, error) {
 		}
 	}
 
+	if err := row.Err(); err != nil {
+		return "", err
+	}
+
 	return url, nil
 
 }
@@ -280,10 +272,6 @@ func (db *Database) GetAllURLForUser(ctx context.Context, user string) ([]middle
 		JSONStruct     middleware.JSONStructForAuth
 		returnErr      error
 	)
-
-	//query := fmt.Sprintf("select id, full_url from %s.%s where user_id = $1", schema, table, user)
-	//log.Println(query)
-	//row, err := db.GetRows(ctx, query)
 
 	row, err := db.ConnPool.Query(ctx, "select id, full_url from public.storage where user_id = $1", user)
 
@@ -315,16 +303,18 @@ func (db *Database) GetAllURLForUser(ctx context.Context, user string) ([]middle
 		JSONStruct.OriginalURL = value[1].(string)
 		JSONStructList = append(JSONStructList, JSONStruct)
 	}
+
+	if err := row.Err(); err != nil {
+		return nil, err
+	}
+
 	fmt.Sprintln(JSONStructList)
 	return JSONStructList, returnErr
 }
 
 func (db *Database) SearchID(ctx context.Context, url string) (int, error) {
 	var id int
-	//query := fmt.Sprintf("select id from %s.%s where full_url =", schema, table)
-	//query = query + fmt.Sprintf("'$1'", url)
-	//log.Println(query)
-	//row, err := db.GetRows(ctx, query)
+
 	row, err := db.ConnPool.Query(ctx, "select id from public.storage where full_url = $1", url)
 
 	if err != nil {
@@ -343,6 +333,10 @@ func (db *Database) SearchID(ctx context.Context, url string) (int, error) {
 		} else {
 			id = int(value[0].(int32))
 		}
+	}
+
+	if err := row.Err(); err != nil {
+		return 0, err
 	}
 
 	return id, nil

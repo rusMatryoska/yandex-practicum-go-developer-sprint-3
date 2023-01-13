@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter13">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_11_12_2022,_22_38_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_11_12_2022__22_38__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_16_12_2022,_11_17_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_16_12_2022__11_17__Changes_.xml" beforeDir="false" />
+    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter13 fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/yandex-practicum-go-developer-sprint-3.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/yandex-practicum-go-developer-sprint-3.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/shortener/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/shortener/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/handlers/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/handler.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/storage/storage.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/storage/storage.go" afterDir="false" />
     </list>
@@ -155,7 +149,8 @@
     <MESSAGE value="iter-12" />
     <MESSAGE value="iter17" />
     <MESSAGE value="iter13" />
-    <option name="LAST_COMMIT_MESSAGE" value="iter13" />
+    <MESSAGE value="iter13 fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="iter13 fix" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

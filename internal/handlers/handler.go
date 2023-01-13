@@ -46,7 +46,7 @@ func ReadBody(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 }
 
 func (sh StorageHandlers) PingDB(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+	ctx := r.Context()
 	err := sh.storage.Ping(ctx)
 
 	if err != nil {
