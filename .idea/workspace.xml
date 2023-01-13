@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter13 (_ context.Context,">
+    <list default="true" id="65e98d68-ee98-4434-9144-49ef8c8c1149" name="Changes" comment="iter13 SearchURL">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/storage/storage.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/storage/storage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/handler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,8 +78,8 @@
       <module name="yandex-practicum-go-developer-sprint-3" />
       <working_directory value="$PROJECT_DIR$" />
       <envs>
-        <env name="DATABASE_DSN" value="postgresql://pguser:pgpwd@127.0.0.1:5432/db" />
-        <env name="FILE_STORAGE_PATH" value="" />
+        <env name="DATABASE_DSN1" value="postgresql://pguser:pgpwd@127.0.0.1:5432/db" />
+        <env name="FILE_STORAGE_PATH1" value="" />
       </envs>
       <kind value="FILE" />
       <package value="github.com/rusMatryoska/yandex-practicum-go-developer-sprint-3" />
@@ -151,7 +151,8 @@
     <MESSAGE value="iter13 fix" />
     <MESSAGE value="iter13 r.Context()" />
     <MESSAGE value="iter13 (_ context.Context," />
-    <option name="LAST_COMMIT_MESSAGE" value="iter13 (_ context.Context," />
+    <MESSAGE value="iter13 SearchURL" />
+    <option name="LAST_COMMIT_MESSAGE" value="iter13 SearchURL" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

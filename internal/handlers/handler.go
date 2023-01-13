@@ -107,7 +107,12 @@ func (sh StorageHandlers) ShortenBatchHandler(w http.ResponseWriter, r *http.Req
 
 	w.Header().Set("Content-Type", "application/json")
 
-	json.Unmarshal([]byte(urlBytes), &batchRequestList)
+	err = json.Unmarshal([]byte(urlBytes), &batchRequestList)
+	if err != nil {
+		log.Printf("error in JSON: %v", err)
+		http.Error(w, "error in JSON", http.StatusInternalServerError)
+		return
+	}
 	for i := range batchRequestList {
 		ctx := r.Context()
 		fullShortenURL, err := sh.storage.AddURL(ctx, batchRequestList[i].OriginalURL, user)
@@ -115,7 +120,8 @@ func (sh StorageHandlers) ShortenBatchHandler(w http.ResponseWriter, r *http.Req
 			w.WriteHeader(http.StatusConflict)
 			return
 		} else if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			log.Printf("error wile add URL to storage: %v", err)
+			http.Error(w, "error wile add URL to storage", http.StatusInternalServerError)
 			return
 		} else {
 			w.WriteHeader(http.StatusCreated)
